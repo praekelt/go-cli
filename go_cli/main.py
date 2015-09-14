@@ -2,22 +2,23 @@
 
 import click
 
+import go_cli.send
+
+
+class GoCliContext(object):
+    def __init__(self):
+        self.account_key = None
+
 
 @click.group()
 @click.version_option()
 @click.option('--account', '-a', help='Vumi Go account key')
-def cli(account):
-    pass
+@click.pass_context
+def cli(ctx, account):
+    """ Vumi Go command line utility. """
+    ctx.auto_envvar_prefix = 'GO_CLI'
+    ctx.obj = GoCliContext()
+    ctx.obj.account_key = account
 
 
-@cli.command('send')
-@click.option('--conversation', '-c', help='HTTP API conversation key')
-@click.option('--token', '-t', help='HTTP API conversation token')
-def source_archive_dot_org(conversation, token):
-    """ Send messages via an HTTP API (nostream) conversation.
-    """
-    pass
-
-
-if __name__ == "__main__":
-    cli()
+cli.command('send')(go_cli.send.send)
