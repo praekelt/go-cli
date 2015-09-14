@@ -1,7 +1,7 @@
 Vumi Go command line interface
 ==============================
 
-A command line interface for `Vumi Go's`_ HTTP APIs.
+A command line interface for `Vumi Go`_ HTTP APIs.
 
 .. _Vumi Go: http://github.com/praekelt/vumi-go
 
