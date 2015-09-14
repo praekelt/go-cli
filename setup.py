@@ -15,6 +15,10 @@ setup(
         'go_http',
         'click',
     ],
+    entry_points="""
+        [console_scripts]
+        go-cli=go_cli.main:cli
+    """,
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
