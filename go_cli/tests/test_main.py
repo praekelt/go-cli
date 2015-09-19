@@ -1,4 +1,4 @@
-""" Tests fir go_cli.main. """
+""" Tests for go_cli.main. """
 
 from unittest import TestCase
 
