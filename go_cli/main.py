@@ -10,7 +10,7 @@ class GoCliContext(object):
         self.account_key = None
 
 
-@click.group()
+@click.group(name="go_cli")
 @click.version_option()
 @click.option('--account', '-a', help='Vumi Go account key')
 @click.pass_context
