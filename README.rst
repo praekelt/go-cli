@@ -40,15 +40,15 @@ to learn about the options available for sending.
 Example message sending:
 
   $ go-cli --account 1edfdd412f253e9fc4975eb93c2c1e8c \
-           send
+           send \
            --conversation a3aa791fab164dc894328564e2be5f16 \
            --token secret-token-you-entered \
            --csv messages.csv
 
 Where `messages.csv` looks something like:
 
-  to_addr,content
-  +12345678,"Hello first person"
+  to_addr,content \
+  +12345678,"Hello first person" \
   +12345679,"Hello second person"
 
 
