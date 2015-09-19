@@ -17,11 +17,11 @@ A command line interface for `Vumi Go`_ HTTP APIs.
 Installation
 ------------
 
-Install with:
+Install with::
 
   $ pip install --user go-cli
 
-Then run
+Then run::
 
   $ go-cli --help
 
@@ -31,13 +31,13 @@ and read the usage instructions.
 Sending messages
 ----------------
 
-Run
+Run::
 
   $ go-cli send --help
 
 to learn about the options available for sending.
 
-Example message sending:
+Example message sending::
 
   $ go-cli --account 1edfdd412f253e9fc4975eb93c2c1e8c \
            send \
@@ -45,10 +45,10 @@ Example message sending:
            --token secret-token-you-entered \
            --csv messages.csv
 
-Where `messages.csv` looks something like:
+Where `messages.csv` looks something like::
 
-  to_addr,content \
-  +12345678,"Hello first person" \
+  to_addr,content
+  +12345678,"Hello first person"
   +12345679,"Hello second person"
 
 
