@@ -20,4 +20,4 @@ class TestCli(TestCase):
         runner = CliRunner()
         result = runner.invoke(cli, ['--version'])
         self.assertEqual(result.exit_code, 0)
-        self.assertTrue("go_cli, version " in result.output)
+        self.assertTrue("go-cli, version " in result.output)
