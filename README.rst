@@ -13,6 +13,48 @@ A command line interface for `Vumi Go`_ HTTP APIs.
 .. |go-cli-cover| image:: https://coveralls.io/repos/praekelt/go-cli/badge.png?branch=develop
 .. _go-cli-cover: https://coveralls.io/r/praekelt/go-cli
 
+
+Installation
+------------
+
+Install with:
+
+  $ pip install --user go-cli
+
+Then run
+
+  $ go-cli --help
+
+and read the usage instructions.
+
+
+Sending messages
+----------------
+
+Run
+
+  $ go-cli send --help
+
+to learn about the options available for sending.
+
+Example message sending:
+
+  $ go-cli --account 1edfdd412f253e9fc4975eb93c2c1e8c \
+           send
+           --conversation a3aa791fab164dc894328564e2be5f16 \
+           --token secret-token-you-entered \
+           --csv messages.csv
+
+Where `messages.csv` looks something like:
+
+  to_addr,content
+  +12345678,"Hello first person"
+  +12345679,"Hello second person"
+
+
+Reporting issues
+----------------
+
 You can contact the Vumi development team in the following ways:
 
 * via *email* by joining the the `vumi-dev@googlegroups.com`_ mailing list
