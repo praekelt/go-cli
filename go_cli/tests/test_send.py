@@ -121,10 +121,14 @@ class TestMessagesFromCsv(TestCase):
         ]))
         msgs = messages_from_csv(csv_file)
         self.assertTrue(isinstance(msgs, types.GeneratorType))
-        self.assertRaisesRegexp(
-            click.UsageError,
-            "^CSV file must contain to_addr and content column headers.$",
-            list, msgs)
+        try:
+            list(msgs)
+        except click.UsageError as err:
+            self.failUnlessEqual(
+                str(err),
+                "CSV file must contain to_addr and content column headers.")
+        else:
+            self.fail("Expected click.UsageError")
 
 
 class TestMessagesFromJson(TestCase):
@@ -168,8 +172,12 @@ class TestMessagesFromJson(TestCase):
         json_file = StringIO("\n".join(json.dumps(r) for r in rows) + "\n")
         msgs = messages_from_json(json_file)
         self.assertTrue(isinstance(msgs, types.GeneratorType))
-        self.assertRaisesRegexp(
-            click.UsageError,
-            "^JSON file lines must be objects containing to_addr and"
-            " content keys.$",
-            list, msgs)
+        try:
+            list(msgs)
+        except click.UsageError as err:
+            self.failUnlessEqual(
+                str(err),
+                "JSON file lines must be objects containing to_addr and"
+                " content keys.")
+        else:
+            self.fail("Expected click.UsageError")
