@@ -27,12 +27,11 @@ def send(ctx, conversation, token, csv, json):
     """ Send messages via an HTTP API (nostream) conversation.
     """
     if not all((ctx.obj.account_key, conversation, token)):
-        click.echo("Please specify all of the account key, conversation key"
-                   " and conversation authentication token. See --help.")
-        ctx.abort()
+        raise click.UsageError(
+            "Please specify all of the account key, conversation key"
+            " and conversation authentication token. See --help.")
     if not any((csv, json)):
-        click.echo("Please specify either --csv or --json.")
-        ctx.abort()
+        raise click.UsageError("Please specify either --csv or --json.")
     http_api = HttpApiSender(ctx.obj.account_key, conversation, token)
     if csv:
         for msg in messages_from_csv(csv):
@@ -46,6 +45,9 @@ def send(ctx, conversation, token, csv, json):
 
 def messages_from_csv(csv_file):
     reader = csv.DictReader(csv_file)
+    if not (set(["to_addr", "content"]) <= set(reader.fieldnames)):
+        raise click.UsageError(
+            "CSV file must contain to_addr and content column headers.")
     for data in reader:
         yield {
             "to_addr": data["to_addr"],
@@ -57,6 +59,11 @@ def messages_from_csv(csv_file):
 def messages_from_json(json_file):
     for line in json_file:
         data = json.loads(line.rstrip("\n"))
+        if not isinstance(data, dict) or not (
+                set(["to_addr", "content"]) <= set(data.keys())):
+            raise click.UsageError(
+                "JSON file lines must be objects containing to_addr and"
+                " content keys.")
         yield {
             "to_addr": data["to_addr"],
             "content": data["content"],

@@ -5,6 +5,7 @@ from StringIO import StringIO
 import json
 import types
 
+import click
 from click.testing import CliRunner
 
 import go_cli.send
@@ -39,7 +40,7 @@ class TestSendCommand(TestCase):
 
     def test_send_no_conversation_details(self):
         result = self.runner.invoke(cli, ['send'])
-        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(result.exit_code, 2)
         self.assertTrue(
             "Please specify all of the account key, conversation key and"
             " conversation authentication token. See --help."
@@ -47,7 +48,7 @@ class TestSendCommand(TestCase):
 
     def test_send_no_data(self):
         result = self.invoke_send([])
-        self.assertEqual(result.exit_code, 1)
+        self.assertEqual(result.exit_code, 2)
         self.assertTrue("Please specify either --csv or --json."
                         in result.output)
 
@@ -101,6 +102,30 @@ class TestMessagesFromCsv(TestCase):
             'session_event': None,
         }])
 
+    def test_trailing_newline(self):
+        csv_file = StringIO("\n".join([
+            "to_addr,content",
+            "+1234,hello world"
+        ]) + "\n")
+        msgs = messages_from_csv(csv_file)
+        self.assertTrue(isinstance(msgs, types.GeneratorType))
+        self.assertEqual(list(msgs), [{
+            'to_addr': '+1234', 'content': 'hello world',
+            'session_event': None,
+        }])
+
+    def test_invalid_headers(self):
+        csv_file = StringIO("\n".join([
+            "knights,niiii",
+            "+1234,hello world"
+        ]))
+        msgs = messages_from_csv(csv_file)
+        self.assertTrue(isinstance(msgs, types.GeneratorType))
+        self.assertRaisesRegexp(
+            click.UsageError,
+            "^CSV file must contain to_addr and content column headers.$",
+            list, msgs)
+
 
 class TestMessagesFromJson(TestCase):
     def test_with_session_event(self):
@@ -124,3 +149,27 @@ class TestMessagesFromJson(TestCase):
         self.assertEqual(list(msgs), [
             dict(session_event=None, **r) for r in rows
         ])
+
+    def test_trailing_newline(self):
+        rows = [
+            {"to_addr": "+1234", "content": "hello", "session_event": "new"},
+            {"to_addr": "+1235", "content": "bye", "session_event": "close"},
+        ]
+        json_file = StringIO("\n".join(json.dumps(r) for r in rows) + "\n")
+        msgs = messages_from_json(json_file)
+        self.assertTrue(isinstance(msgs, types.GeneratorType))
+        self.assertEqual(list(msgs), rows)
+
+    def test_invalid_keys(self):
+        rows = [
+            {"to_addr": "+1234", "content": "hello", "session_event": "new"},
+            {"knights": "+1235", "niiii": "bye", "session_event": "close"},
+        ]
+        json_file = StringIO("\n".join(json.dumps(r) for r in rows) + "\n")
+        msgs = messages_from_json(json_file)
+        self.assertTrue(isinstance(msgs, types.GeneratorType))
+        self.assertRaisesRegexp(
+            click.UsageError,
+            "^JSON file lines must be objects containing to_addr and"
+            " content keys.$",
+            list, msgs)
