@@ -32,7 +32,7 @@ def export_contacts(ctx, token, resume, csv, json):
             " authentication token. See --help.")
     if not any((csv, json)) or all((csv, json)):
         raise click.UsageError(
-            "Please specify either --csv or --json (but not both)")
+            "Please specify either --csv or --json (but not both).")
     contacts_api = ContactsApiClient(token)
     if csv:
         write_contact = csv_contact_writer(csv)
@@ -52,9 +52,9 @@ def contact_to_csv_dict(contact):
     """ Convert a contact to a dictionary safe for CSV writing. """
     d = {}
     for k, v in contact.iteritems():
-        if isinstance(v, basestring):
+        if isinstance(v, unicode):
             v = v.encode("utf-8")
-        else:
+        elif not isinstance(v, str):
             v = json.dumps(v)
         d[k.encode("utf-8")] = v
     return d
