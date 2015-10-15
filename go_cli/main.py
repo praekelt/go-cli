@@ -3,6 +3,7 @@
 import click
 
 import go_cli.send
+import go_cli.export_contacts
 
 
 class GoCliContext(object):
@@ -22,3 +23,4 @@ def cli(ctx, account):
 
 
 cli.command('send')(go_cli.send.send)
+cli.command('export-contacts')(go_cli.export_contacts.export_contacts)
