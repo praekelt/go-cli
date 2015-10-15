@@ -2,6 +2,7 @@
 
 import base64
 import json
+import urllib
 
 from requests_testadapter import TestAdapter, TestSession
 
@@ -12,10 +13,15 @@ class RecordingAdapter(TestAdapter):
     request = None
     expected_auth_headers = None
 
-    def set_expected_auth(self, username, password):
+    def set_basic_auth(self, username, password):
         auth_data = base64.b64encode('%s:%s' % (username, password))
         self.expected_auth_headers = {
             "Authorization": u'Basic %s' % auth_data,
+        }
+
+    def set_bearer_auth(self, token):
+        self.expected_auth_headers = {
+            "Authorization": u'Bearer %s' % token,
         }
 
     def send(self, request, *args, **kw):
@@ -59,8 +65,23 @@ class ApiHelper(object):
 
     def add_send(self, account_key, conv_key, conv_token, data=None):
         adapter = RecordingAdapter(json.dumps(data))
-        adapter.set_expected_auth(account_key, conv_token)
+        adapter.set_basic_auth(account_key, conv_token)
         self.session.mount(
             "%s/%s/messages.json" % (self.api_url, conv_key),
             adapter)
+        return adapter
+
+    def add_contacts(self, auth_token, start_cursor=None, contacts=(),
+                     cursor=None):
+        page = {
+            "data": contacts,
+            "cursor": cursor,
+        }
+        adapter = RecordingAdapter(json.dumps(page))
+        adapter.set_bearer_auth(auth_token)
+        params = ""
+        if start_cursor is not None:
+            params = "?" + urllib.urlencode({"cursor": start_cursor})
+        url = "%s/contacts/%s" % (self.api_url, params)
+        self.session.mount(url, adapter)
         return adapter
