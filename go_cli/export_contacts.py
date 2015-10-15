@@ -68,9 +68,9 @@ def csv_contact_writer(csv_file):
         contact = contact_to_csv_dict(contact)
         dict_writer = closure['writer']
         if dict_writer is None:
-            dict_writer = closure['writer'] = csv.DictWriter(
-                csv_file, sorted(contact.keys()))
-            dict_writer.writeheader()
+            fields = sorted(contact.keys())
+            dict_writer = closure['writer'] = csv.DictWriter(csv_file, fields)
+            dict_writer.writerow(dict((k, k) for k in fields))
         dict_writer.writerow(contact)
 
     return writer
