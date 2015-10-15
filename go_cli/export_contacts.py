@@ -44,7 +44,7 @@ def export_contacts(ctx, token, resume, csv, json):
     except PagedException as err:
         raise click.ClickException(
             "Error downloading contacts. Please re-run with --start=%s to"
-            " resume, but check for duplicate contacts afterwards."
+            " resume."
             % err.cursor)
 
 

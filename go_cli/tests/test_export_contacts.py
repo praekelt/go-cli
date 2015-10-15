@@ -8,6 +8,8 @@ import json
 
 from click.testing import CliRunner
 
+from go_http.exceptions import PagedException
+
 import go_cli.export_contacts
 from go_cli.main import cli
 from go_cli.export_contacts import (
@@ -82,6 +84,43 @@ class TestExportContactsCommand(TestCase):
                 self.assertEqual(
                     f.read(),
                     '{"msisdn": "1234"}\n{"msisdn": "5678"}\n')
+
+    def test_resume(self):
+        response = self.api_helper.add_contacts(
+            "tok-1",
+            start_cursor="abcd",
+            contacts=[
+                {"msisdn": "8888"},
+                {"msisdn": "9999"},
+            ])
+        with self.runner.isolated_filesystem():
+            result = self.invoke_export_contacts([
+                '--resume', 'abcd', '--json', 'contacts.json'])
+            self.assertEqual(result.output, "")
+            self.api_helper.check_response(response, 'GET')
+            with open('contacts.json') as f:
+                self.assertEqual(
+                    f.read(),
+                    '{"msisdn": "8888"}\n{"msisdn": "9999"}\n')
+
+    def test_page_exception(self):
+        def raise_page_exc(*args, **kw):
+            yield {"msisdn": "1234"}
+            raise PagedException("abcd", Exception("Foo"))
+        self.api_helper.patch_api_method(
+            go_cli.export_contacts, 'ContactsApiClient', 'contacts',
+            raise_page_exc)
+        with self.runner.isolated_filesystem():
+            result = self.invoke_export_contacts([
+                '--json', 'contacts.json'])
+            self.assertEqual(
+                result.output,
+                "Error: Error downloading contacts. Please re-run with"
+                " --start=abcd to resume.\n")
+            with open('contacts.json') as f:
+                self.assertEqual(
+                    f.read(),
+                    '{"msisdn": "1234"}\n')
 
 
 class TestContactToCsvDict(TestCase):

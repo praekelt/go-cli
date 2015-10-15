@@ -35,11 +35,16 @@ class ApiHelper(object):
         self.test_case = test_case
         self.api_url = api_url
         self.session = TestSession()
-        self._api_patches = []
+        self._patches = []
 
     def tearDown(self):
-        for obj, name, orig_api in reversed(self._api_patches):
+        for obj, name, orig_api in reversed(self._patches):
             setattr(obj, name, orig_api)
+
+    def patch(self, obj, name, patched_obj):
+        orig = getattr(obj, name)
+        self._patches.append((obj, name, orig))
+        setattr(obj, name, patched_obj)
 
     def patch_api(self, obj, name):
         def patched_api(*args, **kw):
@@ -47,8 +52,15 @@ class ApiHelper(object):
             kw['api_url'] = self.api_url
             return orig_api(*args, **kw)
         orig_api = getattr(obj, name)
-        self._api_patches.append((obj, name, orig_api))
-        setattr(obj, name, patched_api)
+        self.patch(obj, name, patched_api)
+
+    def patch_api_method(self, obj, name, method, patched_method):
+        def patched_api(*args, **kw):
+            api = orig_api(*args, **kw)
+            setattr(api, method, patched_method)
+            return api
+        orig_api = getattr(obj, name)
+        self.patch(obj, name, patched_api)
 
     def check_response(self, adapter, method, data=None, headers=None):
         request = adapter.request
