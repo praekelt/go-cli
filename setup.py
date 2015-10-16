@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="go-cli",
-    version="0.1.1",
+    version="0.1.2a0",
     url='http://github.com/praekelt/go-cli',
     license='BSD',
     description="A command-line interface for Vumi Go's HTTP APIs",
