@@ -52,6 +52,29 @@ Where `messages.csv` looks something like::
   +12345679,"Hello second person"
 
 
+Exporting contacts
+------------------
+
+Run::
+
+  $ go-cli export-contacts --help
+
+to learn about the options available for downloading contacts.
+
+Example contact exporting::
+
+  $ go-cli --account 1edfdd412f253e9fc4975eb93c2c1e8c \
+           export-contacts \
+           --token secret-token-for-your-contacts-api \
+           --csv contacts.csv
+
+Where `contacts.csv` is the file you'd like to export the contacts to.
+
+If contact exporting is interrupt by a network error, a message will be printed
+explaining how to use `--resume` to continue it.
+
+
+
 Reporting issues
 ----------------
 
