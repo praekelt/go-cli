@@ -85,7 +85,25 @@ class TestExportContactsCommand(TestCase):
                     f.read(),
                     '{"msisdn": "1234"}\n{"msisdn": "5678"}\n')
 
-    def test_resume(self):
+    def test_resume_csv(self):
+        response = self.api_helper.add_contacts(
+            "tok-1",
+            start_cursor="abcd",
+            contacts=[
+                {"msisdn": "8888"},
+                {"msisdn": "9999"},
+            ])
+        with self.runner.isolated_filesystem():
+            result = self.invoke_export_contacts([
+                '--resume', 'abcd', '--csv', 'contacts.csv'])
+            self.assertEqual(result.output, "")
+            self.api_helper.check_response(response, 'GET')
+            with open('contacts.csv') as f:
+                self.assertEqual(
+                    f.read(),
+                    '8888\r\n9999\r\n')
+
+    def test_resume_json(self):
         response = self.api_helper.add_contacts(
             "tok-1",
             start_cursor="abcd",
@@ -143,10 +161,17 @@ class TestContactToCsvDict(TestCase):
 class TestCsvContactWriter(TestCase):
     def test_new_file(self):
         f = StringIO()
-        writer = csv_contact_writer(f)
+        writer = csv_contact_writer(f, False)
         writer({"msisdn": "1234"})
         writer({"msisdn": "5678"})
         self.assertEqual(f.getvalue(), "msisdn\r\n1234\r\n5678\r\n")
+
+    def test_resumed_file(self):
+        f = StringIO()
+        writer = csv_contact_writer(f, True)
+        writer({"msisdn": "1234"})
+        writer({"msisdn": "5678"})
+        self.assertEqual(f.getvalue(), "1234\r\n5678\r\n")
 
 
 class TestJsonContactWriter(TestCase):

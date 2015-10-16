@@ -35,7 +35,7 @@ def export_contacts(ctx, token, resume, csv, json):
             "Please specify either --csv or --json (but not both).")
     contacts_api = ContactsApiClient(token)
     if csv:
-        write_contact = csv_contact_writer(csv)
+        write_contact = csv_contact_writer(csv, resumed=bool(resume))
     else:
         write_contact = json_contact_writer(json)
     try:
@@ -60,7 +60,7 @@ def contact_to_csv_dict(contact):
     return d
 
 
-def csv_contact_writer(csv_file):
+def csv_contact_writer(csv_file, resumed):
     """ Return a function for writing contacts to the given CSV file. """
     closure = {'writer': None}
 
@@ -70,7 +70,8 @@ def csv_contact_writer(csv_file):
         if dict_writer is None:
             fields = sorted(contact.keys())
             dict_writer = closure['writer'] = csv.DictWriter(csv_file, fields)
-            dict_writer.writerow(dict((k, k) for k in fields))
+            if not resumed:
+                dict_writer.writerow(dict((k, k) for k in fields))
         dict_writer.writerow(contact)
 
     return writer
