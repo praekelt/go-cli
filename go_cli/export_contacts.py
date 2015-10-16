@@ -43,7 +43,7 @@ def export_contacts(ctx, token, resume, csv, json):
             write_contact(contact)
     except PagedException as err:
         raise click.ClickException(
-            "Error downloading contacts. Please re-run with --start=%s to"
+            "Error downloading contacts. Please re-run with --resume=%s to"
             " resume."
             % err.cursor)
 

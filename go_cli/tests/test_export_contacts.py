@@ -116,7 +116,7 @@ class TestExportContactsCommand(TestCase):
             self.assertEqual(
                 result.output,
                 "Error: Error downloading contacts. Please re-run with"
-                " --start=abcd to resume.\n")
+                " --resume=abcd to resume.\n")
             with open('contacts.json') as f:
                 self.assertEqual(
                     f.read(),
